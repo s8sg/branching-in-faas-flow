@@ -1,0 +1,10 @@
+environment:
+  workflow_name: "test-for-each"
+  gateway: "gateway:8080"
+  enable_tracing: false
+  trace_server: ""
+  enable_hmac: false
+  consul_url: "statestore_consul:8500"
+  consul_dc: "dc1"
+  enable_tracing: false
+  enable_hmac: true

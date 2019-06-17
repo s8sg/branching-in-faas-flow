@@ -1,0 +1,18 @@
+provider:
+  name: faas
+  gateway: http://127.0.0.1:8080
+functions:
+  test-for-each:
+    lang: faas-flow
+    handler: ./test-flow
+    image: test-flow:latest
+    labels:
+      faas-flow: 1
+      faas-flow-desc: "flow for a example foreach execution"
+    environment:
+      read_timeout: 120
+      write_timeout: 120
+      write_debug: true
+      combine_output: false
+    environment_file:
+      - flow.yml
