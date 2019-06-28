@@ -1,5 +1,5 @@
 # flow-foreach-example
-Super simple faas-flow foreach branching example
+Super simple examples with dynamic branching in faas-flow
 
 
 ### Getting Started 
