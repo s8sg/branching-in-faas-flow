@@ -1,4 +1,4 @@
-# flow-foreach-example
+# branching-in-faas-flow
 Super simple examples with dynamic branching in faas-flow
 
 
