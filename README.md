@@ -1,6 +1,7 @@
 # branching-in-faas-flow
 Super simple examples with dynamic branching in faas-flow
 
+![dashboard-view](dag.png)
 
 ### Getting Started 
 1. Deploy Openfaas
