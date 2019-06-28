@@ -8,7 +8,7 @@ Super simple faas-flow foreach branching example
 3. Review your configuration at `flow.yml`
 ```
 environment:
-  workflow_name: "test-for-each"
+  workflow_name: "test-branching"
   gateway: "gateway:8080"
   enable_tracing: false
   enable_hmac: false

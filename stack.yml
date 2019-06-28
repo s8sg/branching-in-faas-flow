@@ -2,13 +2,13 @@ provider:
   name: faas
   gateway: http://127.0.0.1:8080
 functions:
-  test-for-each:
+  test-branching:
     lang: faas-flow
-    handler: ./test-flow
-    image: test-flow:latest
+    handler: ./test-branching
+    image: test-branching:latest
     labels:
       faas-flow: 1
-      faas-flow-desc: "flow for a example foreach execution"
+      faas-flow-desc: "flow for a example braching execution"
     environment:
       read_timeout: 120
       write_timeout: 120

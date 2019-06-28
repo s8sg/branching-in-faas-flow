@@ -73,7 +73,6 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 		return []byte(result), nil
 	})
 
-	/* // XXX: Issue exists when two or more dynamic branch starts from or meets into same node
 	conditiondags := dag.AddConditionalBranch("conditional-branch",
 		// Conditions
 		[]string{"condition1", "condition2"},
@@ -119,7 +118,6 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 		return []byte(result), nil
 	})
 	conditiondags["condition2"].AddEdge("node1", "node2")
-	*/
 
 	// AddVertex with Aggregator
 	dag.AddVertex("end-node", faasflow.Aggregator(func(results map[string][]byte) ([]byte, error) {
@@ -141,8 +139,8 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	dag.AddEdge("foreach-branch", "end-node")
 	dag.AddEdge("start-node", "parallel-node")
 	dag.AddEdge("parallel-node", "end-node")
-	//dag.AddEdge("start-node", "conditional-branch")
-	//dag.AddEdge("conditional-branch", "end-node")
+	dag.AddEdge("start-node", "conditional-branch")
+	dag.AddEdge("conditional-branch", "end-node")
 
 	// set the dag in the flow
 	flow.ExecuteDag(dag)
