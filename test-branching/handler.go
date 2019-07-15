@@ -29,11 +29,8 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	foreachdag := dag.AddForEachBranch("foreach-branch",
 		// function that determine the status
 		func(data []byte) map[string][]byte {
-			log.Print("Invoking Foreach")
-
 			splits := strings.Split(string(data), "-")
 			option := make(map[string][]byte)
-
 			for pos, item := range splits {
 				// Each of these option will result in a different branch
 				option[strconv.Itoa(pos)] = []byte(item)
@@ -41,8 +38,6 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 			return option
 		},
 		faasflow.Aggregator(func(results map[string][]byte) ([]byte, error) {
-			log.Print("Invoking Foreach Aggregator")
-
 			result := ""
 			for option, data := range results {
 				result = result + " " + option + "=" + string(data)
@@ -51,24 +46,20 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 		}),
 	)
 	foreachdag.AddModifier("node1", func(data []byte) ([]byte, error) {
-		log.Print("Invoking foreach Node 1")
 		result := fmt.Sprintf("foreach-node1(%s)", string(data))
 		return []byte(result), nil
 	})
 	foreachdag.AddModifier("node2", func(data []byte) ([]byte, error) {
-		log.Print("Invoking foreach Node 2")
 		result := fmt.Sprintf("foreach-node2(%s)", string(data))
 		return []byte(result), nil
 	})
 	foreachdag.AddEdge("node1", "node2")
 
 	dag.AddModifier("parallel-node", func(data []byte) ([]byte, error) {
-		log.Print("Invoking Mod1 in parallel-node")
 		result := fmt.Sprintf("parallel-node-mod1(%s)", string(data))
 		return []byte(result), nil
 	})
 	dag.AddModifier("parallel-node", func(data []byte) ([]byte, error) {
-		log.Print("Invoking Mod2 in parallel-node")
 		result := fmt.Sprintf("parallel-node-mod2(%s)", string(data))
 		return []byte(result), nil
 	})
@@ -78,15 +69,11 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 		[]string{"condition1", "condition2"},
 		// function that determine the status
 		func(response []byte) []string {
-			log.Print("Invoking Condition")
-
 			// for each returned condition a seperate branch will execute
 			return []string{"condition1", "condition2"}
 		},
 		// faasflow.ExecutionBranch, // delete this if intermidiate data need data store
 		faasflow.Aggregator(func(results map[string][]byte) ([]byte, error) {
-			log.Print("Invoking Condition Aggregator")
-
 			// results can be aggregated accross the branches
 			result := ""
 			for condition, data := range results {
@@ -96,24 +83,20 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 		}),
 	)
 	conditiondags["condition1"].AddModifier("node1", func(data []byte) ([]byte, error) {
-		log.Print("Invoking node1 under condition1")
 		result := fmt.Sprintf("condition1-node1(%s)", string(data))
 		return []byte(result), nil
 	})
 	conditiondags["condition1"].AddModifier("node2", func(data []byte) ([]byte, error) {
-		log.Print("Invoking node2 in under condition1")
 		result := fmt.Sprintf("condition1-node2(%s)", string(data))
 		return []byte(result), nil
 	})
 	conditiondags["condition1"].AddEdge("node1", "node2")
 
 	conditiondags["condition2"].AddModifier("node1", func(data []byte) ([]byte, error) {
-		log.Print("Invoking node1 in under condition2")
 		result := fmt.Sprintf("condition2-node1(%s)", string(data))
 		return []byte(result), nil
 	})
 	conditiondags["condition2"].AddModifier("node2", func(data []byte) ([]byte, error) {
-		log.Print("Invoking node2 in under condition2")
 		result := fmt.Sprintf("condition2-node2(%s)", string(data))
 		return []byte(result), nil
 	})
@@ -122,7 +105,6 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	// AddVertex with Aggregator
 	dag.AddVertex("end-node", faasflow.Aggregator(func(results map[string][]byte) ([]byte, error) {
 		// results can be aggregated accross the branches
-		log.Print("Invoking end-node Aggregator")
 		result := ""
 		for node, data := range results {
 			result = result + " " + node + "=" + string(data)

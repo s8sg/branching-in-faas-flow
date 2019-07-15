@@ -20,6 +20,7 @@ environment:
 ```
 5. Deploy the flow-function
 ```
+faas template pull https://github.com/s8sg/faas-flow
 faas build
 faas deploy
 ```
