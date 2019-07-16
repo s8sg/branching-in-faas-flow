@@ -13,10 +13,11 @@ import (
 
 // Define provide definiton of the workflow
 func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
-	dag := faasflow.CreateDag()
+	// Get flow dag
+	dag := flow.Dag()
 
 	// Set a dummy data
-	dag.AddModifier("start-node", func(data []byte) ([]byte, error) {
+	dag.Node("start-node").Modify(func(data []byte) ([]byte, error) {
 		log.Print("Invoking Start Node")
 		if len(data) == 0 {
 			data = []byte("aa-bb-cc")
@@ -26,7 +27,7 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	})
 
 	// define the foreach branch dag as a node
-	foreachdag := dag.AddForEachBranch("foreach-branch",
+	foreachdag := dag.ForEachBranch("foreach-branch",
 		// function that determine the status
 		func(data []byte) map[string][]byte {
 			splits := strings.Split(string(data), "-")
@@ -45,26 +46,25 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 			return []byte(result), nil
 		}),
 	)
-	foreachdag.AddModifier("node1", func(data []byte) ([]byte, error) {
+	foreachdag.Node("node1").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("foreach-node1(%s)", string(data))
 		return []byte(result), nil
 	})
-	foreachdag.AddModifier("node2", func(data []byte) ([]byte, error) {
+	foreachdag.Node("node2").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("foreach-node2(%s)", string(data))
 		return []byte(result), nil
 	})
-	foreachdag.AddEdge("node1", "node2")
+	foreachdag.Edge("node1", "node2")
 
-	dag.AddModifier("parallel-node", func(data []byte) ([]byte, error) {
+	dag.Node("parallel-node").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("parallel-node-mod1(%s)", string(data))
 		return []byte(result), nil
-	})
-	dag.AddModifier("parallel-node", func(data []byte) ([]byte, error) {
+	}).Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("parallel-node-mod2(%s)", string(data))
 		return []byte(result), nil
 	})
 
-	conditiondags := dag.AddConditionalBranch("conditional-branch",
+	conditiondags := dag.ConditionalBranch("conditional-branch",
 		// Conditions
 		[]string{"condition1", "condition2"},
 		// function that determine the status
@@ -82,50 +82,46 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 			return []byte(result), nil
 		}),
 	)
-	conditiondags["condition1"].AddModifier("node1", func(data []byte) ([]byte, error) {
+	conditiondags["condition1"].Node("node1").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition1-node1(%s)", string(data))
 		return []byte(result), nil
 	})
-	conditiondags["condition1"].AddModifier("node2", func(data []byte) ([]byte, error) {
+	conditiondags["condition1"].Node("node2").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition1-node2(%s)", string(data))
 		return []byte(result), nil
 	})
-	conditiondags["condition1"].AddEdge("node1", "node2")
+	conditiondags["condition1"].Edge("node1", "node2")
 
-	conditiondags["condition2"].AddModifier("node1", func(data []byte) ([]byte, error) {
+	conditiondags["condition2"].Node("node1").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition2-node1(%s)", string(data))
 		return []byte(result), nil
 	})
-	conditiondags["condition2"].AddModifier("node2", func(data []byte) ([]byte, error) {
+	conditiondags["condition2"].Node("node2").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition2-node2(%s)", string(data))
 		return []byte(result), nil
 	})
-	conditiondags["condition2"].AddEdge("node1", "node2")
+	conditiondags["condition2"].Edge("node1", "node2")
 
 	// AddVertex with Aggregator
-	dag.AddVertex("end-node", faasflow.Aggregator(func(results map[string][]byte) ([]byte, error) {
+	dag.Node("end-node", faasflow.Aggregator(func(results map[string][]byte) ([]byte, error) {
 		// results can be aggregated accross the branches
 		result := ""
 		for node, data := range results {
 			result = result + " " + node + "=" + string(data)
 		}
 		return []byte(result), nil
-	}))
-	dag.AddModifier("end-node", func(data []byte) ([]byte, error) {
+	})).Modify(func(data []byte) ([]byte, error) {
 		log.Print("Invoking End Node")
 		log.Print("End data: ", string(data))
 		return data, nil
 	})
 
-	dag.AddEdge("start-node", "foreach-branch")
-	dag.AddEdge("foreach-branch", "end-node")
-	dag.AddEdge("start-node", "parallel-node")
-	dag.AddEdge("parallel-node", "end-node")
-	dag.AddEdge("start-node", "conditional-branch")
-	dag.AddEdge("conditional-branch", "end-node")
-
-	// set the dag in the flow
-	flow.ExecuteDag(dag)
+	dag.Edge("start-node", "foreach-branch")
+	dag.Edge("foreach-branch", "end-node")
+	dag.Edge("start-node", "parallel-node")
+	dag.Edge("parallel-node", "end-node")
+	dag.Edge("start-node", "conditional-branch")
+	dag.Edge("conditional-branch", "end-node")
 
 	return
 }
