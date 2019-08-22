@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Define provide definiton of the workflow
@@ -48,19 +49,23 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	)
 	foreachdag.Node("node1").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("foreach-node1(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 	foreachdag.Node("node2").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("foreach-node2(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 	foreachdag.Edge("node1", "node2")
 
 	dag.Node("parallel-node").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("parallel-node-mod1(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	}).Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("parallel-node-mod2(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 
@@ -84,20 +89,24 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	)
 	conditiondags["condition1"].Node("node1").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition1-node1(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 	conditiondags["condition1"].Node("node2").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition1-node2(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 	conditiondags["condition1"].Edge("node1", "node2")
 
 	conditiondags["condition2"].Node("node1").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition2-node1(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 	conditiondags["condition2"].Node("node2").Modify(func(data []byte) ([]byte, error) {
 		result := fmt.Sprintf("condition2-node2(%s)", string(data))
+		time.Sleep(5 * time.Second)
 		return []byte(result), nil
 	})
 	conditiondags["condition2"].Edge("node1", "node2")
@@ -113,6 +122,7 @@ func Define(flow *faasflow.Workflow, context *faasflow.Context) (err error) {
 	})).Modify(func(data []byte) ([]byte, error) {
 		log.Print("Invoking End Node")
 		log.Print("End data: ", string(data))
+		time.Sleep(5 * time.Second)
 		return data, nil
 	})
 
