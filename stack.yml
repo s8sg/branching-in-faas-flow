@@ -8,6 +8,7 @@ functions:
     image: test-branching:latest
     labels:
       faas-flow: 1
+    annotations:
       faas-flow-desc: "flow for a example braching execution"
     environment:
       read_timeout: 120
