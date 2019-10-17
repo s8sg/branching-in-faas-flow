@@ -9,11 +9,12 @@ functions:
     labels:
       faas-flow: 1
     annotations:
-      faas-flow-desc: "flow for a example braching execution"
+      faas-flow-desc: "flow for an example braching execution"
     environment:
       read_timeout: 120
       write_timeout: 120
       write_debug: true
+      exec_timeout: 0
       combine_output: false
     environment_file:
       - flow.yml
